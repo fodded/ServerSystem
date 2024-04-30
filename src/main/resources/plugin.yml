@@ -1,0 +1,4 @@
+name: ServerSystem
+version: '${project.version}'
+main: me.fodded.serversystem.ServerSystem
+depend: [ProtocolLib]
