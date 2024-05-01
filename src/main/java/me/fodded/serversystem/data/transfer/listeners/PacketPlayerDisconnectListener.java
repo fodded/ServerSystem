@@ -2,8 +2,8 @@ package me.fodded.serversystem.data.transfer.listeners;
 
 import me.fodded.serversystem.ServerSystem;
 import me.fodded.serversystem.data.transfer.IRedisListener;
-import me.fodded.serversystem.fakeworld.FakeEntityPlayer;
-import me.fodded.serversystem.fakeworld.FakeWorldManager;
+import me.fodded.serversystem.syncedworld.SyncedWorldManager;
+import me.fodded.serversystem.syncedworld.entities.SyncedEntityPlayer;
 import me.fodded.serversystem.utils.ChatUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,26 +15,22 @@ public class PacketPlayerDisconnectListener implements IRedisListener {
     @Override
     public void onMessage(CharSequence channel, Object msg) {
         String message = (String) msg;
-        UUID playerUUID = UUID.fromString(message);
+        String[] arrMessage = message.split(":");
 
-        Player player = Bukkit.getPlayer(playerUUID);
-        if(player == null) {
-            return;
-        }
+        UUID playerUUID = UUID.fromString(arrMessage[0]);
+        String playerDisplayName = arrMessage[1];
 
-        FakeWorldManager fakeWorldManager = ServerSystem.getInstance().getFakeWorldManager();
-        FakeEntityPlayer foundFakeEntity = fakeWorldManager.getFakeEntityPlayer(playerUUID);
-        if(foundFakeEntity == null) {
+        SyncedWorldManager syncedWorldManager = ServerSystem.getInstance().getSyncedWorldManager();
+        SyncedEntityPlayer syncedEntity = syncedWorldManager.getSyncedEntityPlayer(playerUUID);
+        if(syncedEntity == null) {
             return;
         }
 
         Player[] players = Bukkit.getOnlinePlayers().stream().map(Player::getPlayer).toArray(Player[]::new);
-        foundFakeEntity.hideEntity(players);
-        foundFakeEntity.hideTabName(players);
-        foundFakeEntity.clearFakeEntitiesToPlayer(player);
+        syncedEntity.hideEntity(players);
+        syncedEntity.hideTabName(players);
+        syncedWorldManager.unregisterSyncedEntity(syncedEntity.getUniqueID());
 
-        Bukkit.getOnlinePlayers().forEach(eachPlayer -> {
-            eachPlayer.sendMessage(ChatUtil.format("&e" + player.getDisplayName() + " left the server"));
-        });
+        Bukkit.getOnlinePlayers().forEach(eachPlayer -> eachPlayer.sendMessage(ChatUtil.format("&e" + playerDisplayName + " left the server")));
     }
 }

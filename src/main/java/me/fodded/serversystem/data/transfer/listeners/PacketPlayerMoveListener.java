@@ -2,8 +2,8 @@ package me.fodded.serversystem.data.transfer.listeners;
 
 import me.fodded.serversystem.ServerSystem;
 import me.fodded.serversystem.data.transfer.IRedisListener;
-import me.fodded.serversystem.fakeworld.FakeEntityPlayer;
-import me.fodded.serversystem.fakeworld.FakeWorldManager;
+import me.fodded.serversystem.syncedworld.SyncedWorldManager;
+import me.fodded.serversystem.syncedworld.entities.SyncedEntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -28,9 +28,9 @@ public class PacketPlayerMoveListener implements IRedisListener {
         float yaw = Float.parseFloat(arrMessage[4]);
         float pitch = Float.parseFloat(arrMessage[5]);
 
-        FakeWorldManager fakeWorldManager = ServerSystem.getInstance().getFakeWorldManager();
-        FakeEntityPlayer fakeEntityPlayer = fakeWorldManager.getFakeEntityPlayer(playerUUID);
-        if(fakeEntityPlayer == null) {
+        SyncedWorldManager syncedWorldManager = ServerSystem.getInstance().getSyncedWorldManager();
+        SyncedEntityPlayer syncedEntityPlayer = syncedWorldManager.getSyncedEntityPlayer(playerUUID);
+        if(syncedEntityPlayer == null) {
             return;
         }
 
@@ -40,9 +40,9 @@ public class PacketPlayerMoveListener implements IRedisListener {
 
         Bukkit.getOnlinePlayers().forEach(eachPlayer -> {
             if (!locationChunk.isLoaded()) {
-                fakeEntityPlayer.hideEntity(eachPlayer);
+                syncedEntityPlayer.hideEntity(eachPlayer);
             } else {
-                fakeEntityPlayer.moveFakeEntity(eachPlayer, x, y, z, yaw, pitch);
+                syncedEntityPlayer.moveEntity(eachPlayer, x, y, z, yaw, pitch);
             }
         });
     }

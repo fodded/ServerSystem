@@ -12,7 +12,7 @@ public class MinecraftPlayerMovePacket extends PacketAdapter implements PacketLi
     private final ServerSystem plugin;
 
     public MinecraftPlayerMovePacket(Plugin plugin) {
-        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.POSITION);
+        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.POSITION, PacketType.Play.Client.LOOK, PacketType.Play.Client.POSITION_LOOK);
         this.plugin = (ServerSystem) plugin;
     }
 
