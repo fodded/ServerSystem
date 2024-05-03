@@ -5,6 +5,8 @@ import me.fodded.serversystem.data.transfer.IRedisListener;
 import me.fodded.serversystem.syncedworld.SyncedWorldManager;
 import me.fodded.serversystem.syncedworld.entities.SyncedEntityPlayer;
 import me.fodded.serversystem.syncedworld.entities.SyncedEntityPlayerTracker;
+import me.fodded.serversystem.syncedworld.entities.operations.impl.EntityAnimationOperation;
+import me.fodded.serversystem.syncedworld.info.impl.PlayerAnimationPacket;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -14,10 +16,9 @@ public class PacketPlayerAnimationListener implements IRedisListener {
     @Override
     public void onMessage(CharSequence channel, Object msg) {
         String message = (String) msg;
-        String[] messageArray = message.split(":");
+        PlayerAnimationPacket playerAnimationPacket = new PlayerAnimationPacket(message);
 
-        UUID playerUUID = UUID.fromString(messageArray[0]);
-        int animationType = Integer.parseInt(messageArray[1]);
+        UUID playerUUID = playerAnimationPacket.getUuid();
 
         SyncedWorldManager syncedWorldManager = ServerSystem.getInstance().getSyncedWorldManager();
         SyncedEntityPlayer syncedEntityPlayer = syncedWorldManager.getSyncedEntityPlayer(playerUUID);
@@ -25,17 +26,7 @@ public class PacketPlayerAnimationListener implements IRedisListener {
             return;
         }
 
-        if(animationType == 2) {
-            syncedEntityPlayer.sneakEntity();
-            return;
-        }
-
-        if(animationType == 3) {
-            syncedEntityPlayer.unSneakEntity();
-            return;
-        }
-
         Player[] players = SyncedEntityPlayerTracker.getInstance().getPlayersEntityTrackedFor(syncedEntityPlayer).stream().map(Player::getPlayer).toArray(Player[]::new);
-        syncedEntityPlayer.playAnimation(animationType, players);
+        syncedEntityPlayer.getEntityOperationRegistry().getState(EntityAnimationOperation.class).operate(playerAnimationPacket, players);
     }
 }

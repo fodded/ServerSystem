@@ -5,6 +5,7 @@ import com.comphenix.protocol.events.*;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import me.fodded.serversystem.ServerSystem;
 import me.fodded.serversystem.syncedworld.entities.SyncedEntityPlayer;
+import me.fodded.serversystem.syncedworld.info.impl.PlayerKnockbackPacket;
 import net.minecraft.server.v1_8_R3.MathHelper;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -29,7 +30,6 @@ public class MinecraftPlayerHitPacket extends PacketAdapter implements PacketLis
         }
 
         Player attackerPlayer = event.getPlayer();
-
         float playerYaw = attackerPlayer.getLocation().getYaw();
         float constExtraKnockback = calculateItemKnockback(attackerPlayer);
 
@@ -44,9 +44,8 @@ public class MinecraftPlayerHitPacket extends PacketAdapter implements PacketLis
         }
 
         double damage = calculatePlayerDamage(attackerPlayer);
-
-        String formattedMessage = syncedEntityPlayer.getUniqueID().toString() + ":" + damage + ":" + knockbackX + ":" + knockbackY + ":" + knockbackZ;
-        plugin.getRedisClient().sendMessage("playerHit", formattedMessage);
+        PlayerKnockbackPacket playerKnockbackPacket = new PlayerKnockbackPacket(syncedEntityPlayer.getUniqueID(), damage, knockbackX, knockbackY, knockbackZ);
+        plugin.getRedisClient().sendMessage("playerHit", playerKnockbackPacket.serializePacketInfo());
     }
 
     private double calculatePlayerDamage(Player player) {

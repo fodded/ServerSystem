@@ -4,6 +4,9 @@ import lombok.Getter;
 import me.fodded.serversystem.ServerSystem;
 import me.fodded.serversystem.syncedworld.entities.SyncedEntityPlayer;
 import me.fodded.serversystem.syncedworld.entities.SyncedEntityPlayerTracker;
+import me.fodded.serversystem.syncedworld.entities.states.impl.EntityTabVisibilityState;
+import me.fodded.serversystem.syncedworld.info.impl.PlayerDisconnectPacket;
+import me.fodded.serversystem.syncedworld.info.impl.PlayerJoinPacket;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -15,7 +18,6 @@ public class PlayerManager {
 
     @Getter
     private final UUID playerUUID;
-
     private static final Map<UUID, PlayerManager> cachedPlayerManager = new HashMap<>();
 
     public PlayerManager(UUID playerUUID) {
@@ -26,18 +28,16 @@ public class PlayerManager {
     // Method is called after the data has loaded from the database
     public void handleJoin() {
         Player player = Bukkit.getPlayer(playerUUID);
-
         ServerSystem plugin = ServerSystem.getInstance();
-        String playerName = player.getDisplayName();
 
         // Loading all previously created fake entity players
         for(SyncedEntityPlayer syncedEntityPlayer : plugin.getSyncedWorldManager().getRegisteredSyncedEntities()) {
-            syncedEntityPlayer.showTabName(player);
+            syncedEntityPlayer.getEntityStateRegistry().getState(EntityTabVisibilityState.class).enable(player);
         }
 
         // Telling other server connected to the plugin that the player joined the server
-        String formattedMessage = player.getUniqueId() + ":"  + playerName;
-        plugin.getRedisClient().sendMessage("playerJoined", formattedMessage);
+        PlayerJoinPacket playerJoinPacket = new PlayerJoinPacket(playerUUID, player.getDisplayName());
+        plugin.getRedisClient().sendMessage("playerJoined", playerJoinPacket.serializePacketInfo());
     }
 
     public void handleQuit() {
@@ -45,8 +45,10 @@ public class PlayerManager {
         SyncedEntityPlayerTracker.getInstance().clearEntitiesCacheToPlayer(playerUUID);
 
         // Telling other server connected to the plugin that the player left the server
-        String formattedMessage = playerUUID.toString() + ":" + player.getDisplayName();
-        ServerSystem.getInstance().getRedisClient().sendMessage("playerQuit", formattedMessage);
+        PlayerDisconnectPacket playerDisconnectPacket = new PlayerDisconnectPacket(playerUUID, player.getPlayerListName());
+        ServerSystem.getInstance().getRedisClient().sendMessage("playerQuit", playerDisconnectPacket.serializePacketInfo());
+
+        cachedPlayerManager.remove(playerUUID);
     }
 
     public static PlayerManager getPlayerManager(UUID playerUUID) {

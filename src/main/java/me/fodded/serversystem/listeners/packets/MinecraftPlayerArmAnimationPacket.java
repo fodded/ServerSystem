@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
 import me.fodded.serversystem.ServerSystem;
+import me.fodded.serversystem.syncedworld.info.impl.PlayerAnimationPacket;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -22,7 +23,7 @@ public class MinecraftPlayerArmAnimationPacket extends PacketAdapter implements 
     public void onPacketReceiving(PacketEvent event) {
         Player player = event.getPlayer();
 
-        String formattedMessage = player.getUniqueId().toString() + ":0";
-        plugin.getRedisClient().sendMessage("playerAnimation", formattedMessage);
+        PlayerAnimationPacket playerAnimationPacket = new PlayerAnimationPacket(player.getUniqueId(), 0);
+        plugin.getRedisClient().sendMessage("playerAnimation", playerAnimationPacket.serializePacketInfo());
     }
 }

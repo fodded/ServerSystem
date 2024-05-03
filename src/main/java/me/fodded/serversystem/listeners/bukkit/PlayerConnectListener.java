@@ -18,7 +18,6 @@ public class PlayerConnectListener implements Listener {
         this.plugin = plugin;
     }
 
-    // TODO: move the logic from this method to a separate PlayerManager class
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();

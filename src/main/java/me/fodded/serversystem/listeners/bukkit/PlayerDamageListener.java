@@ -1,6 +1,7 @@
 package me.fodded.serversystem.listeners.bukkit;
 
 import me.fodded.serversystem.ServerSystem;
+import me.fodded.serversystem.syncedworld.info.impl.PlayerAnimationPacket;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,18 +14,15 @@ public class PlayerDamageListener implements Listener {
         this.plugin = plugin;
     }
 
+    // TODO: Does not seem to work when the damage is custom, might have worked around it to make it compatible with everything
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent event) {
         if(!(event.getEntity() instanceof Player)) {
-            System.out.println("entity is not the player");
             return;
         }
-
         Player player = (Player) event.getEntity();
 
-        System.out.println("sent damage animation");
-
-        String formattedMessage = player.getUniqueId().toString() + ":1";
-        plugin.getRedisClient().sendMessage("playerAnimation", formattedMessage);
+        PlayerAnimationPacket playerAnimationPacket = new PlayerAnimationPacket(player.getUniqueId(), 1);
+        plugin.getRedisClient().sendMessage("playerAnimation", playerAnimationPacket.serializePacketInfo());
     }
 }

@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
 import me.fodded.serversystem.ServerSystem;
+import me.fodded.serversystem.syncedworld.info.impl.PlayerAnimationPacket;
 import net.minecraft.server.v1_8_R3.PacketPlayInEntityAction;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -23,13 +24,14 @@ public class MinecraftPlayerAnimationPacket extends PacketAdapter implements Pac
     public void onPacketReceiving(PacketEvent event) {
         Player player = event.getPlayer();
 
+        // 0 and 1 are the types of Sneak Animation
         int animationType = ((PacketPlayInEntityAction) event.getPacket().getHandle()).b().ordinal();
         if(animationType != 0 && animationType != 1) {
             return;
         }
 
         // + 2 because we would have conflicts with Swing Animation which is also 0 as Crouching and Take Damage(1)
-        String formattedMessage = player.getUniqueId().toString() + ":" + (animationType + 2);
-        plugin.getRedisClient().sendMessage("playerAnimation", formattedMessage);
+        PlayerAnimationPacket playerAnimationPacket = new PlayerAnimationPacket(player.getUniqueId(), animationType+2);
+        plugin.getRedisClient().sendMessage("playerAnimation", playerAnimationPacket.serializePacketInfo());
     }
 }

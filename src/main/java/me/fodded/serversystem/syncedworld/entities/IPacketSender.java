@@ -1,4 +1,4 @@
-package me.fodded.serversystem.syncedworld;
+package me.fodded.serversystem.syncedworld.entities;
 
 import net.minecraft.server.v1_8_R3.Packet;
 import net.minecraft.server.v1_8_R3.PlayerConnection;
@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.function.Consumer;
 
-public interface ISyncedEntity {
+public interface IPacketSender {
 
     default Consumer<Packet> sendPacketEveryone() {
         return arg -> Bukkit.getOnlinePlayers().forEach(player -> {

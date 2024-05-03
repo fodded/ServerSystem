@@ -3,6 +3,7 @@ package me.fodded.serversystem.listeners.packets;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.*;
 import me.fodded.serversystem.ServerSystem;
+import me.fodded.serversystem.syncedworld.info.impl.PlayerMovementPacket;
 import org.bukkit.plugin.Plugin;
 
 import java.util.UUID;
@@ -27,7 +28,7 @@ public class MinecraftPlayerMovePacket extends PacketAdapter implements PacketLi
         float yaw = packet.getFloat().read(0);
         float pitch = packet.getFloat().read(1);
 
-        String formattedMessage = spawnedPlayerUUID.toString() + ":" + x + ":" + y + ":" + z + ":" + yaw + ":" + pitch;
-        plugin.getRedisClient().sendMessage("playerMove", formattedMessage);
+        PlayerMovementPacket playerMovementPacket = new PlayerMovementPacket(spawnedPlayerUUID, x, y, z, yaw, pitch);
+        plugin.getRedisClient().sendMessage("playerMove", playerMovementPacket.serializePacketInfo());
     }
 }
