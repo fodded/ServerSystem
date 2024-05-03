@@ -6,7 +6,11 @@ import lombok.Getter;
 import me.fodded.serversystem.data.storage.IDataStorage;
 import me.fodded.serversystem.data.storage.mongo.MongoStorage;
 import me.fodded.serversystem.data.transfer.RedisClient;
-import me.fodded.serversystem.listeners.PlayerConnectListener;
+import me.fodded.serversystem.listeners.bukkit.PlayerConnectListener;
+import me.fodded.serversystem.listeners.bukkit.PlayerDamageListener;
+import me.fodded.serversystem.listeners.packets.MinecraftPlayerAnimationPacket;
+import me.fodded.serversystem.listeners.packets.MinecraftPlayerArmAnimationPacket;
+import me.fodded.serversystem.listeners.packets.MinecraftPlayerHitPacket;
 import me.fodded.serversystem.listeners.packets.MinecraftPlayerMovePacket;
 import me.fodded.serversystem.syncedworld.SyncedWorldManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,7 +37,12 @@ public final class ServerSystem extends JavaPlugin {
         instance = this;
 
         getServer().getPluginManager().registerEvents(new PlayerConnectListener(instance), instance);
+        getServer().getPluginManager().registerEvents(new PlayerDamageListener(instance), instance);
+
         protocolManager.addPacketListener(new MinecraftPlayerMovePacket(instance));
+        protocolManager.addPacketListener(new MinecraftPlayerHitPacket(instance));
+        protocolManager.addPacketListener(new MinecraftPlayerAnimationPacket(instance));
+        protocolManager.addPacketListener(new MinecraftPlayerArmAnimationPacket(instance));
 
         initializeDataStorage();
         initializeDataTransfer();

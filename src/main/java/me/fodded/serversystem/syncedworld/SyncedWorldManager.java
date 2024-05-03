@@ -23,6 +23,15 @@ public class SyncedWorldManager {
         return registeredFakeEntities.get(uuid);
     }
 
+    public SyncedEntityPlayer getSyncedEntityPlayer(int entityId) {
+        for(SyncedEntityPlayer syncedEntityPlayer : getRegisteredSyncedEntities()) {
+            if(syncedEntityPlayer.getId() == entityId) {
+                return syncedEntityPlayer;
+            }
+        }
+        return null;
+    }
+
     public Collection<SyncedEntityPlayer> getRegisteredSyncedEntities() {
         return registeredFakeEntities.values();
     }

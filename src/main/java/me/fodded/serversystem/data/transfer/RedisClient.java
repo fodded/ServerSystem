@@ -1,9 +1,7 @@
 package me.fodded.serversystem.data.transfer;
 
 import lombok.Getter;
-import me.fodded.serversystem.data.transfer.listeners.PacketPlayerDisconnectListener;
-import me.fodded.serversystem.data.transfer.listeners.PacketPlayerJoinListener;
-import me.fodded.serversystem.data.transfer.listeners.PacketPlayerMoveListener;
+import me.fodded.serversystem.data.transfer.listeners.*;
 import org.redisson.Redisson;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
@@ -32,6 +30,8 @@ public class RedisClient {
         registerListener(new PacketPlayerDisconnectListener(), "playerQuit");
         registerListener(new PacketPlayerMoveListener(), "playerMove");
         registerListener(new PacketPlayerJoinListener(), "playerJoined");
+        registerListener(new PacketPlayerHitListener(), "playerHit");
+        registerListener(new PacketPlayerAnimationListener(), "playerAnimation");
     }
 
     public void sendMessage(String topicName, String message) {

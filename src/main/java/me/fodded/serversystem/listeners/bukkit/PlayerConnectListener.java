@@ -1,4 +1,4 @@
-package me.fodded.serversystem.listeners;
+package me.fodded.serversystem.listeners.bukkit;
 
 import me.fodded.serversystem.ServerSystem;
 import me.fodded.serversystem.data.impl.PlayerDataManager;
